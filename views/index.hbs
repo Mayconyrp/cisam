@@ -1,0 +1,62 @@
+<div class="p-2 rounded mt-3">
+    <h2>Pacientes</h2>
+    
+    <form action="/nome-cpf" method="post">
+    <button type="submit">Nome/Cpf</button>
+    </form>
+    <form action="/email-celular" method="post">
+    <button type="submit">Email/Celular</button>
+    </form>
+
+
+    {{#if table}}
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+            <th scope="col">Protuário</th>
+            <th scope="col">Nome</th>
+            <th scope="col">CPF</th>
+            <th scope="col">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each pacientes}}
+            <tr>               
+                <th scope="row">{{prontuario}}</th>
+                <td>{{nome}}</td>
+                <td>{{cpf}}</td>
+                <td>
+                    <div class="row">
+                        <div class="col-6 col-md-4">
+                            <form action="/editar" method="post">
+                                <input type="hidden" name="cpf" value="{{cpf}}">
+                                <button class="btn btn-info w-100">Editar</button>
+                            </form>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <button class="btn btn-danger w-100">Deletar</button>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <button 
+                                class="w-50 btn btn-outline-light"><img src="/img/consulta-marcar.svg">
+                            </button>
+                        </div>
+                    </div>
+                </td>     
+            </tr>
+            
+            {{/each}}
+            
+        </tbody>
+    </table>
+    {{else}}
+    <div class="card mt-4">
+        <div class="card-body">
+        Nenhum dado encontrado!
+        </div>
+    </div>
+    {{/if}}
+
+
+
+</div>

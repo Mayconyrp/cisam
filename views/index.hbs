@@ -2,10 +2,14 @@
     <h2>Pacientes</h2>
     
     <form action="/nome-cpf" method="post">
-    <button type="submit">Nome/Cpf</button>
+        <button type="submit">Nome/Cpf</button>
     </form>
     <form action="/email-celular" method="post">
-    <button type="submit">Email/Celular</button>
+        <button type="submit">Email/Celular</button>
+    </form>
+    <form action="/buscar" method="post">
+        <input type="text" name="query">
+        <button type="submit">Pesquisar</button>
     </form>
 
 
@@ -13,7 +17,7 @@
     <table class="table table-striped mt-3">
         <thead>
             <tr>
-            <th scope="col">Protuário</th>
+            <th scope="col">Prontuário</th>
             <th scope="col">Nome</th>
             <th scope="col">CPF</th>
             <th scope="col">Ações</th>
@@ -37,9 +41,11 @@
                             <button class="btn btn-danger w-100">Deletar</button>
                         </div>
                         <div class="col-6 col-md-3">
-                            <button 
+                            <form action="/marcar-consulta" method="get">
+                            <button
                                 class="w-50 btn btn-outline-light"><img src="/img/consulta-marcar.svg">
                             </button>
+                            </form>
                         </div>
                     </div>
                 </td>     

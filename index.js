@@ -173,7 +173,12 @@ app.post('/update', (req, res) => {
     })
 })
 
+//Atalho para marcar consulta na página inicial (imagem svg de calendário)
+app.get('/marcar-consulta', (res) => {
+    res.render('marcar-consulta', {NavActiveRel: true})
 
+})
+//Área de marcação de consulta
 app.post('/marcar-consulta', (req, res) => {
     let cpf = req.body.cpf
     Paciente.findByPk(cpf).then((dados) => {
@@ -247,6 +252,7 @@ app.get('/relatorios', (req, res) => {
     res.render('relatorios', {NavActiveRel: true})
 })
 
+
 // filtros
 app.post('/nome-cpf', function(req, res) {
     Paciente.findAll({
@@ -276,6 +282,36 @@ app.post('/nome-cpf', function(req, res) {
     
     })
 
+app.post('/buscar', async (req, res) => {
+        const pesquisa = req.body.query;
+        const items = await Paciente.findAll({
+        where: {
+            nome: {
+                [Op.substring]: `%${pesquisa}%`,
+            }
+        }
+        }).then(function(items){
+            console.log(items.map(items => items.toJSON()))
+            console.log('rererer')
+            res.render('buscar', { items, pesquisa });
+        }).catch(function(err){
+            console.log(err)    
+        })
+    })        
+    
+/*
+    app.post('/buscar', async (req, res) => {
+        const { query } = req.query;
+        const results = Paciente.findAll({
+        where: {
+            nome: {
+            [Op.iLike]: `%${query}%`,
+            },
+        },
+        });
+        res.render('buscar', { results });
+    });
+   */ 
 //Página de Cadastros
 app.get('/cadastros', (req, res) => {
     res.render('cadastros', {NavActiveCad: true})
@@ -287,7 +323,7 @@ app.get('/login', (req,res) => {
 })
 
 /* Inicialização do Servidor */
-app.listen(4000, () => {
-    console.log('Aplicação rodando na porta 4000!')
+app.listen(3000, () => {
+    console.log('Aplicação rodando na porta 3000!')
 })
 

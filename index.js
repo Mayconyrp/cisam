@@ -267,20 +267,26 @@ app.post('/nome-cpf', function(req, res) {
         }
 })
 .then((valores) =>{
-    res.render('nome-cpf', { Paciente: Paciente });
+    //res.render('nome-cpf', { Paciente: Paciente });
+    return res.render('nome-cpf', {table:true, pacientes: valores.map(valores => valores.toJSON()) })
+
     console.log(valores.map(valores => valores.toJSON()))
     });
     });
     
-    app.post('/email-celular', function(req, res) {
+    app.post('/buscar',(req, res) => {
+        const pesquisa = req.body.query;
         Paciente.findAll({
-            attributes: ['email', 'telefone']
-        }).then(function(valores) {
-            res.render('index');
-        console.log(valores.map(valores => valores.toJSON())) //map serve para organizar os dados que serão passados
-        });                                                   //no console      
-    
+            where: {
+                nome: {
+                    [Op.substring]: `%${pesquisa}%`,
+                }
+            }
+    }).then(function(valores) {
+        return res.render('buscar',{table:true, pacientes:valores.map(valores => valores.toJSON()) })
     })
+})
+/*
 
 app.post('/buscar', async (req, res) => {
         const pesquisa = req.body.query;
@@ -299,6 +305,17 @@ app.post('/buscar', async (req, res) => {
         })
     })        
     
+*/
+
+    app.post('/email-celular', function(req, res) {
+        Paciente.findAll({
+            attributes: ['prontuario', 'cpf']
+        }).then(function(valores) {
+            return res.render('email-celular',{NavActiveUsers:true, table:true, pacientes:valores.map(valores => valores.toJSON()) });
+        console.log(valores.map(valores => valores.toJSON())) //map serve para organizar os dados que serão passados
+        });                                                   //no console      
+    
+    })
 /*
     app.post('/buscar', async (req, res) => {
         const { query } = req.query;
@@ -311,7 +328,7 @@ app.post('/buscar', async (req, res) => {
         });
         res.render('buscar', { results });
     });
-   */ 
+   */
 //Página de Cadastros
 app.get('/cadastros', (req, res) => {
     res.render('cadastros', {NavActiveCad: true})

@@ -21,7 +21,13 @@ const Consulta = db.sequelize.define('consultas', {
     queixaPaciente: {
         type: db.Sequelize.TEXT,
         allowNull: false
-    }
+    },
+    cpf_paciente: {
+        type: db.Sequelize.STRING(14),
+        allowNull: false,
+        primaryKey: true
+    },
+
     
 })  
 

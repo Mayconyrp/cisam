@@ -1,1 +1,76 @@
-<h2>Página de Relatórios</h2>
+<div class="p-2 rounded mt-3">
+    <h2>Pacientes</h2>
+    
+    <form action="/consultas" method="post">
+        <button type="submit">Consultas Marcadas</button>
+    </form>
+        <form action="/consultasurgentes" method="post">
+        <button type="submit">Consultas Urgentes</button>
+    </form>
+
+    <form action="/email-celular" method="post">
+        <input type="checkbox" name="paciente" value="paciente"> paciente
+        <input type="checkbox" name="consultas" value="consultas"> consulta
+        <input type="submit" value="Search"> Filtrar
+    </form>
+    </form>
+    <form action="/buscar" method="post">
+        <input type="text" name="query" placeholder="Nome ou CPF">
+        <button type="submit">Pesquisar</button>
+    </form>
+    
+
+
+    {{#if table}}
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+            <th scope="col">Data Consulta</th>
+            <th scope="col">Nome</th>
+            <th scope="col">Risco</th>
+            <th scope="col">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each pacientes}}
+            <tr>               
+                <th scope="row">{{dataConsulta}}</th>
+                <td>{{nome}}</td>
+                <td>{{risco}}</td>
+                <td>
+                    <div class="row">
+                        <div class="col-6 col-md-4">
+                            <form action="/editar" method="post">
+                                <input type="hidden" name="cpf" value="{{cpf}}">
+                                <button class="btn btn-info w-100">Editar</button>
+                            </form>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <button class="btn btn-danger w-100">Deletar</button>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <form action="/marcar-consulta" method="get">
+                            <button
+                                class="w-50 btn btn-outline-light"><img src="/img/consulta-marcar.svg">
+                            </button>
+                            </form>
+                        </div>
+                    </div>
+                </td>     
+            </tr>
+            
+            {{/each}}
+            
+        </tbody>
+    </table>
+    {{else}}
+    <div class="card mt-4">
+        <div class="card-body">
+        Nenhum dado encontrado!
+        </div>
+    </div>
+    {{/if}}
+
+
+
+</div>

@@ -71,18 +71,12 @@ const Paciente = db.sequelize.define('paciente', {
         type: db.Sequelize.STRING,
         allowNull: false
      },
-	 numeroSUS: {
-        type: db.Sequelize.STRING,
-        allowNull: false
-     },
-	 certidaoNasc: {
+     risco: {
         type: db.Sequelize.STRING,
         allowNull: true
      },
-	 certidaoCas: {
-        type: db.Sequelize.STRING,
-        allowNull: true
-     } 
+
+	
 }) 
 
 Paciente.sync()

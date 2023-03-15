@@ -3,7 +3,7 @@ const db = require('./db')
 const Especialidade_Medica = db.sequelize.define('especialidadeMedica', {
     id_especialidade: {
         type: db.Sequelize.INTEGER,
-        auto_increment: true,
+        autoIncrement: true,
         allowNull: false,
         primaryKey: true
     },

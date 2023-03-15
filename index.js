@@ -4,7 +4,11 @@ const app = express()
 const hbs = require('express-handlebars')
 const bodyParser = require('body-parser')
 const Sequelize = require('sequelize')
+const { sequelize } = require('./models/db.js'); // Importa o objeto sequelize
+const { QueryTypes } = require('sequelize'); // Importa os tipos de consulta do Sequelize
+
 const Op = Sequelize.Op;
+
 
 /* Configurações da Aplicação */
 
@@ -56,6 +60,20 @@ app.get('/', (req, res) => {
     })
 })
 
+app.get('/relatorios',(req, res) => {
+    sequelize.query(
+        `SELECT p.prontuario, p.nome, p.cpf, c.dataConsulta, p.risco, c.id_consulta 
+        FROM consultas c 
+        INNER join pacientes p 
+        on c.cpf_paciente = p.cpf `, { type: Sequelize.QueryTypes.SELECT }	
+    ).then((valores) => {
+        console.log(valores)
+    res.render('relatorios',{table:true,pacientes:valores })
+    }).catch((err) => {
+    console.log(err)
+    })
+})
+
 //Página do Paciente - Resumo
 app.post('/paciente-resumo', (req, res) => {
     let cpf = req.body.cpf
@@ -100,7 +118,6 @@ app.post('/editar', (req, res) => {
     })  
 })
 
-
 app.post('/update', (req, res) => {
     //Valores vindos do formulário
     let nome = req.body.nome
@@ -143,7 +160,8 @@ app.post('/update', (req, res) => {
             cpf: req.body.cpf
         }
 
-    },console.log(cpf),
+    },
+    console.log(cpf),
     console.log(nome),
     console.log(email),
     console.log(prontuario),
@@ -168,8 +186,6 @@ app.post('/update', (req, res) => {
     }).catch((err) => {
         console.log(err)
         console.log('Erro detectado')
-
-
     })
 })
 
@@ -217,6 +233,7 @@ app.post('/consulta',(req,res)=>{
     // Usuario.findByPk(id).then((dados)=>{
     //     nome = dados.nome
     // })
+    let cpf_paciente = req.body.cpf;
     let dia = req.body.dia;
     let mes = req.body.mes;
     let ano = req.body.ano;
@@ -235,10 +252,11 @@ app.post('/consulta',(req,res)=>{
     console.log(id_consulta)
 
         Consulta.create({
-            //id_consulta: id_consulta,
+            cpf_paciente:cpf_paciente,
             dataSolicitacao: dataSolicitacao,
             dataConsulta:dataConsulta,
-            queixaPaciente:queixaPaciente
+            queixaPaciente:queixaPaciente,
+
         }).then(function(){
             console.log('Cadastrado com sucesso!');
             return res.redirect('/');
@@ -254,40 +272,60 @@ app.get('/relatorios', (req, res) => {
 
 
 // filtros
-app.post('/nome-cpf', function(req, res) {
-    Paciente.findAll({
-        where: {
-        nome: {
-        [Op.like]: 'n%'
-        },
-        numerosus: {
-            [Op.gt]: 122
-    
-        }
-        }
-})
-.then((valores) =>{
-    //res.render('nome-cpf', { Paciente: Paciente });
-    return res.render('nome-cpf', {table:true, pacientes: valores.map(valores => valores.toJSON()) })
+app.post('/consultas', function(req, res) {
+    sequelize.query('SELECT * FROM pacientes INNER JOIN consultas ON pacientes.cpf = consultas.cpf_paciente ORDER BY consultas.id_consulta DESC',{ type: sequelize.QueryTypes.SELECT })
+    .then((valores) =>{
+        console.log(valores)
+        return res.render('nome-cpf', {table:true, pacientes: valores })
+            })
+    .catch(error => {
+    console.error(error);
+    });
+    });
 
-    console.log(valores.map(valores => valores.toJSON()))
-    });
-    });
-    
+/* EXEMPLO DE COMANDO MYSQL EM NODEJS PARA OS FILTROS NOME-CPF 
+    sequelize.query("SELECT * FROM pacientes WHERE nome LIKE 'N%'", { type: sequelize.QueryTypes.SELECT })
+    .then((valores) =>{
+        //res.render('nome-cpf', { Paciente: Paciente });
+        console.log
+        return res.render('nome-cpf', {table:true, pacientes: valores })
+        })
+    .catch(error => {
+    console.error(error);
+    });*/
+
+    // EXEMPLO DE COMANDO MYSQL EM NODEJS PARA OS FILTROS NOME-CPF 
+
+
+    app.post('/buscar',(req, res) => {
+        const pesquisa = req.body.query;
+            sequelize.query('SELECT p.prontuario, p.nome, p.cpf, c.dataConsulta, p.risco FROM consultas c INNER join pacientes p on c.cpf_paciente = p.cpf where nome LIKE:searchTerm',
+            {
+            replacements: { searchTerm: `%${pesquisa}%` },
+            type: QueryTypes.SELECT }).then(function(valores) {
+        return res.render('buscar',{table:true, pacientes:valores})
+    }).catch(function(err){
+        console.log(err)    
+    })
+    })
+
+ /* SEQUELIZE COMANDO SEARCH
     app.post('/buscar',(req, res) => {
         const pesquisa = req.body.query;
         Paciente.findAll({
             where: {
-                nome: {
-                    [Op.substring]: `%${pesquisa}%`,
-                }
+                [Op.or]:  [
+                    { nome: { [Op.like]: `%${pesquisa}%` } },
+                    { cpf: { [Op.like]: `%${pesquisa}%` } }
+                ]
+                ,
             }
     }).then(function(valores) {
+        console.log(valores.map(valores => valores.toJSON()))
         return res.render('buscar',{table:true, pacientes:valores.map(valores => valores.toJSON()) })
     })
 })
-/*
-
+*/
 app.post('/buscar', async (req, res) => {
         const pesquisa = req.body.query;
         const items = await Paciente.findAll({
@@ -305,9 +343,9 @@ app.post('/buscar', async (req, res) => {
         })
     })        
     
-*/
 
-    app.post('/email-celular', function(req, res) {
+
+/* app.post('/email-celular', function(req, res) {
         Paciente.findAll({
             attributes: ['prontuario', 'cpf']
         }).then(function(valores) {
@@ -316,6 +354,46 @@ app.post('/buscar', async (req, res) => {
         });                                                   //no console      
     
     })
+    */
+/*  app.post('/email-celular', function(req, res) {
+        Paciente.findAll({
+            attributes: ['prontuario', 'cpf']
+        }).then(function(valores) {
+            return res.render('email-celular',{NavActiveUsers:true, table:true, pacientes:valores.map(valores => valores.toJSON()) });
+        console.log(valores.map(valores => valores.toJSON())) //map serve para organizar os dados que serão passados
+        });                                                   //no console      
+    
+    })     */
+
+// PROCURAR AGENDAMENTO POR ORDEM DESCRESCENTE
+app.post('/consultas', function(req, res) {
+    sequelize.query('SELECT * FROM pacientes INNER JOIN consultas ON pacientes.cpf = consultas.cpf_paciente ORDER BY consultas.id_consulta DESC',{ type: sequelize.QueryTypes.SELECT })
+    .then((valores) =>{
+        return res.render('nome-cpf', {table:true, pacientes: valores })
+            })
+    .catch(error => {
+    console.error(error);
+    });
+
+    });
+    app.post('/consultasurgentes', function(req, res) {
+        sequelize.query('SELECT p.prontuario, p.nome, p.cpf, c.dataConsulta, p.risco, c.id_consulta FROM consultas c INNER join pacientes p on c.cpf_paciente = p.cpf WHERE p.risco LIKE :search_name ORDER BY c.id_consulta DESC',
+        { replacements: { search_name: 'G%' } , type: sequelize.QueryTypes.SELECT })
+        .then((valores) =>{
+            console.log(valores)
+            return res.render('consultasurgentes', {table:true, pacientes: valores })
+                })
+        .catch(error => {
+        console.error(error);
+        });
+        });
+
+        app.post('/confirmar', (req, res) => {
+            res.send('Cadastro confirmado')
+            res.render('index', {NavActiveCad: true})
+        })
+        
+    
 /*
     app.post('/buscar', async (req, res) => {
         const { query } = req.query;

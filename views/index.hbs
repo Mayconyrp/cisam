@@ -1,16 +1,24 @@
 <div class="p-2 rounded mt-3">
     <h2>Pacientes</h2>
     
-    <form action="/nome-cpf" method="post">
-        <button type="submit">Nome/Cpf</button>
+    <form action="/consultas" method="post">
+        <button type="submit">Consultas Marcadas</button>
     </form>
+        <form action="/consultasurgentes" method="post">
+        <button type="submit">Consultas Urgentes</button>
+    </form>
+
     <form action="/email-celular" method="post">
-        <button type="submit">Email/Celular</button>
+        <input type="checkbox" name="paciente" value="paciente"> paciente
+        <input type="checkbox" name="consultas" value="consultas"> consulta
+        <input type="submit" value="Search"> Filtrar
+    </form>
     </form>
     <form action="/buscar" method="post">
-        <input type="text" name="query">
+        <input type="text" name="query" placeholder="Nome ou CPF">
         <button type="submit">Pesquisar</button>
     </form>
+    
 
 
     {{#if table}}
